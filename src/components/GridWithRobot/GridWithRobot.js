@@ -12,24 +12,38 @@ class GridWithRobot extends Component {
   };
 
   componentDidMount() {
-    const { robotPlayer, currentPlayer, robotMove, board } = this.props;
-    if (robotPlayer === currentPlayer) {
-      robotMove(board);
-    }
+    this.firstMove();
   }
 
   componentDidUpdate(prevProps) {
     const { updateBoard, robotCell, board } = this.props;
+
+    // Check if robot makes move
     if (prevProps.robotCell !== robotCell) {
       updateBoard(robotCell, board)
     }
+
+    // Check if game was reseted
+    if (board !== prevProps.board && !board.filter(cell => cell).length) {
+      this.firstMove();
+    }
+  }
+
+  firstMove = () => {
+    const { robotPlayer, currentPlayer, robotMove, board } = this.props;
+
+    if (robotPlayer === currentPlayer) {
+      robotMove({ board, isFirst: true });
+    }
+
+    return null;
   }
 
   makeMove = (i, board) => {
-    const { updateBoard, robotMove } = this.props;
+    const { updateBoard, robotMove, robotPlayer, humanPlayer } = this.props;
 
     updateBoard(i, board)
-      .then(board => robotMove(board))
+      .then(board => robotMove({ board, robotPlayer, humanPlayer }))
   }
 
   render() {

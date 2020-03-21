@@ -57,10 +57,20 @@ class Board extends Component {
 
     this.setState({ gameBoardCopy: newBoard });
     
-    if (CHECK_END_GAME(newBoard)) {
+    const { endGame, isDraw } = CHECK_END_GAME(newBoard);
+
+    if (endGame) {
+      this.setState({ isDraw });
+
       setTimeout(() => {
-        this.endGame(currentPlayer, newBoard);
-      }, 400)
+        this.endGame(currentPlayer);
+      }, 400);
+
+      // Return promise for SINGLE PLAYER mode
+      if (mode === SINGLE_PLAYER && currentPlayer === humanPlayer) {
+        return new Promise((resolve) => resolve(gameBoardCopy));
+      }
+
       return false;
     }
 
@@ -73,11 +83,10 @@ class Board extends Component {
     }
   }
 
-  endGame = (currentPlayer, newBoard) => {
-    const { score } = this.state;
-    const isDraw = newBoard.every(cell => !!cell);
+  endGame = (currentPlayer) => {
+    const { score, isDraw } = this.state;
 
-    this.setState({ endGame: true, isDraw });
+    this.setState({ endGame: true });
 
     if (!isDraw) {
       this.setState({
@@ -120,6 +129,7 @@ class Board extends Component {
       score,
       mode,
       robotPlayer,
+      humanPlayer,
     } = this.state;
 
     return (
@@ -148,7 +158,7 @@ class Board extends Component {
           )}
 
           {/* GRID */}
-          {gameStarted && !endGame && mode === MULTI_PLAYER && (
+          {gameStarted && mode === MULTI_PLAYER && (
             <Grid
               currentPlayer={currentPlayer}
               board={gameBoardCopy}
@@ -157,10 +167,11 @@ class Board extends Component {
           )}
 
            {/* GRID WITH ROBOT */}
-           {gameStarted && !endGame && mode === SINGLE_PLAYER && (
+           {gameStarted && mode === SINGLE_PLAYER && (
             <GridWithRobot
               currentPlayer={currentPlayer}
               robotPlayer={robotPlayer}
+              humanPlayer={humanPlayer}
               board={gameBoardCopy}
               updateBoard={this.updateBoard}
             />

@@ -13,8 +13,12 @@ export const CHECK_END_GAME = (newBoard) => {
 
   // Check if no empty cells left
   if (newBoard.every(cell => !!cell)) {
-    return true;
+    return { endGame: true, isDraw: true };
   }
 
-  return isWinningCombo.filter(combo => combo).length > 0;
+  return { endGame: isWinningCombo.filter(combo => combo).length > 0 };
+}
+
+export const GET_RANDOM = max => {
+  return Math.floor(Math.random() * max)
 }

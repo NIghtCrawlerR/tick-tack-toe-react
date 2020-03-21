@@ -1,5 +1,13 @@
 .EndGameMenu {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
+  width: 100%;
+  height: 100%;
+  padding: 40px;
+  background: rgba(0, 0, 0, .8);
 
   &__title {
     margin: 20px 0 50px 0;
@@ -11,6 +19,7 @@
   &__score {
     display: flex;
     justify-content: space-between;
+    width: 80%;
     margin-bottom: 30px;
     color: #ffbc00;
     font-size: 18px;

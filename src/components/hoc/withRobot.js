@@ -1,7 +1,10 @@
 import React from 'react';
 import { get } from 'lodash';
 
-import { WINNING_COMBINATIONS } from '../../config';
+import {
+  WINNING_COMBINATIONS,
+  GET_RANDOM,
+} from '../../config';
 
 function withRobot(Component) {
   
@@ -15,8 +18,8 @@ function withRobot(Component) {
       }
     }
 
-    bestMove = board => {
-      const bestPosition = WINNING_COMBINATIONS.filter(row => {
+    bestMove = (board, robotPlayer, humanPlayer) => {
+      const bestPositions = WINNING_COMBINATIONS.filter(row => {
         const [a, b, c] = row;
         const boardRow = [board[a], board[b], board[c]];
         const hasEmptyCell = boardRow.filter(cell => !cell).length > 0;
@@ -32,39 +35,43 @@ function withRobot(Component) {
         }
 
         return false;
+      });
+
+      
+      const robotWinPosition = bestPositions.filter(row => {
+        const index = row[0];
+        return board[index] === robotPlayer;
       })
 
-      const cell = get(bestPosition, '0', []).filter(cell => !board[cell])
+      const humanWinPosition = bestPositions.filter(row => {
+        const index = row[0]
+        return board[index] === humanPlayer;
+      })
 
+      const singlePosition = robotWinPosition.length ? robotWinPosition : humanWinPosition;
+
+      const cell = get(singlePosition, '0', []).filter(cell => !board[cell])
+  
       return get(cell, '0');
     }
 
-    makeMove = (robotCell) => {
-      console.log('CELL', robotCell)
-      this.setState({
-        robotCell,
-      })
-    }
-  
-    aiMove = (gameBoard) => {
-      // const allowedCells = gameBoard.map((cell, i) => !cell ? i : null).filter(cell => cell !== null);
-      // const random = Math.floor(Math.random() * allowedCells.length);
-      const getRand = () => {
-        const rand = Math.floor(Math.random() * 9);
+    setRobotCell = robotCell => this.setState({ robotCell });
 
-        if (gameBoard[rand]) {
-          return getRand()
-        } else {
-          return rand;
-        }
+    useStrategy = board => {
+      return null;
+    }
+
+    robotMove = ({ board, isFirst, robotPlayer, humanPlayer }) => {
+      const allowedCells = board.map((cell, i) => !cell ? i : null).filter(cell => cell !== null);
+      const random = GET_RANDOM(allowedCells.length);
+
+      const bestMove = this.bestMove(board, robotPlayer, humanPlayer);
+
+      if (bestMove) {
+        this.setRobotCell(bestMove)
+      } else {
+        this.setRobotCell(allowedCells[random]);
       }
-
-      if (this.bestMove(gameBoard)) this.makeMove(this.bestMove(gameBoard))
-      else this.makeMove(getRand())
-    }
-
-    robotMove = (board) => {
-      this.aiMove(board);
     }
  
     render() {

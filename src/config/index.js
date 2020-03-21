@@ -9,6 +9,7 @@ import {
 
 import {
   CHECK_END_GAME,
+  GET_RANDOM,
 } from './functions';
 
 export {
@@ -19,4 +20,5 @@ export {
   SINGLE_PLAYER,
   MULTI_PLAYER,
   CHECK_END_GAME,
+  GET_RANDOM,
 };
