@@ -1,19 +1,22 @@
-export const GAME_BOARD = [
-  null, null, null,
-  null, null, null,
-  null, null, null
-];
+import {
+  GAME_BOARD,
+  WINNING_COMBINATIONS,
+  PLAYER_X,
+  PLAYER_0,
+  SINGLE_PLAYER,
+  MULTI_PLAYER,
+} from './constants';
 
-export const WINNING_COMBINATIONS = [ //row, col positions
-  [0, 1, 2],
-  [3, 4, 5],
-  [6, 7, 8],
-  [0, 3, 6],
-  [1, 4, 7],
-  [2, 5, 8],
-  [0, 4, 8],
-  [2, 4, 6]
-];
+import {
+  CHECK_END_GAME,
+} from './functions';
 
-export const PLAYER_X = 'X';
-export const PLAYER_0 = '0';
+export {
+  GAME_BOARD,
+  WINNING_COMBINATIONS,
+  PLAYER_X,
+  PLAYER_0,
+  SINGLE_PLAYER,
+  MULTI_PLAYER,
+  CHECK_END_GAME,
+};

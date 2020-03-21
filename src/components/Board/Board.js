@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { PLAYER_X, PLAYER_0, WINNING_COMBINATIONS, GAME_BOARD } from '../../config';
+import { PLAYER_X, PLAYER_0, CHECK_END_GAME, GAME_BOARD, MULTI_PLAYER } from '../../config';
 import StartMenu from '../StartMenu';
 import EndGameMenu from '../EndGameMenu';
 import Grid from '../Grid';
@@ -14,6 +14,8 @@ class Board extends Component {
     endGame: false,
     isDraw: false,
     currentPlayer: PLAYER_X,
+    humanPlayer: null,
+    robotPlayer: null,
     gameBoardCopy: GAME_BOARD,
     score: {
       X: 0,
@@ -22,30 +24,19 @@ class Board extends Component {
   }
 
   setMode = (mode) => {
+    console.log("SET MODE")
     this.setState({
       mode,
-      gameStarted: true,
+      gameStarted: mode === MULTI_PLAYER ? true : false,
     });
   }
 
-  checkEndGame = (newBoard) => {
-    // Check if we have some winning position
-    const isWinningCombo = WINNING_COMBINATIONS.map(combo => {
-      const [a, b, c] = combo;
-
-      return newBoard[a]
-        && newBoard[a] === newBoard[b]
-        && newBoard[b]
-        && newBoard[b] === newBoard[c]
+  setPlayer = (player) => {
+    this.setState({
+      humanPlayer: player,
+      robotPlayer: player === PLAYER_X ? PLAYER_0 : PLAYER_X,
+      gameStarted: true,
     })
-
-    // Check if no empty cells left
-    if (newBoard.every(cell => !!cell)) {
-      this.setState({ isDraw: true });
-      return true;
-    }
-
-    return isWinningCombo.filter(combo => combo).length > 0;
   }
 
   switchPlayer = () => {
@@ -66,7 +57,7 @@ class Board extends Component {
 
     this.setState({ gameBoardCopy: newBoard });
     
-    if (this.checkEndGame(newBoard)) {
+    if (CHECK_END_GAME(newBoard)) {
       this.endGame(currentPlayer, newBoard);
       return false;
     }
@@ -118,14 +109,23 @@ class Board extends Component {
       currentPlayer,
       gameBoardCopy,
       isDraw,
-      score
+      score,
+      mode,
     } = this.state;
 
     return (
       <div className="Board">
+        <h3 className="Board__title">Tick Tack Toe</h3>
+
         <div className="Board__playzone">
           {/* START MENU */}
-          {!gameStarted && !endGame && <StartMenu setMode={this.setMode} />}
+          {!gameStarted && !endGame && (
+            <StartMenu
+              setMode={this.setMode}
+              setPlayer={this.setPlayer}
+              mode={mode}
+            />
+          )}
 
           {/* ENDGAME MENU */}
           {endGame && (
@@ -147,6 +147,7 @@ class Board extends Component {
             />
           )}
         </div>
+
         {/* GAME INFO */}
         {gameStarted && !endGame && <div className="Board__game-info">{currentPlayer} turn!</div>}
       </div>

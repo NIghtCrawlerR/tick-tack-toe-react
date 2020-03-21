@@ -1,4 +1,14 @@
 .Board {
+  margin-top: 100px;
+
+  &__title {
+    margin: 20px 0 50px 0;
+    text-align: center;
+    color: #00EA94;
+    font-size: 50px;
+    text-shadow: 0 0 25px #00EA94;
+  }
+
   &__playzone {
     display: flex;
     align-items: center;
