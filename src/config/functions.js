@@ -13,7 +13,6 @@ export const CHECK_END_GAME = (newBoard) => {
 
   // Check if no empty cells left
   if (newBoard.every(cell => !!cell)) {
-    this.setState({ isDraw: true });
     return true;
   }
 

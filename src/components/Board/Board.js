@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 
-import { PLAYER_X, PLAYER_0, CHECK_END_GAME, GAME_BOARD, MULTI_PLAYER } from '../../config';
+import { PLAYER_X, PLAYER_0, CHECK_END_GAME, GAME_BOARD, MULTI_PLAYER, SINGLE_PLAYER } from '../../config';
 import StartMenu from '../StartMenu';
 import EndGameMenu from '../EndGameMenu';
 import Grid from '../Grid';
+import GridWithRobot from '../GridWithRobot';
 
 import './Board.scss';
 
@@ -24,7 +25,6 @@ class Board extends Component {
   }
 
   setMode = (mode) => {
-    console.log("SET MODE")
     this.setState({
       mode,
       gameStarted: mode === MULTI_PLAYER ? true : false,
@@ -48,7 +48,7 @@ class Board extends Component {
   }
 
   updateBoard = index => {
-    const { gameBoardCopy, currentPlayer } = this.state;
+    const { gameBoardCopy, currentPlayer, mode, humanPlayer } = this.state;
     const newBoard = [...gameBoardCopy];
 
     if (newBoard[index]) return null;
@@ -58,18 +58,26 @@ class Board extends Component {
     this.setState({ gameBoardCopy: newBoard });
     
     if (CHECK_END_GAME(newBoard)) {
-      this.endGame(currentPlayer, newBoard);
+      setTimeout(() => {
+        this.endGame(currentPlayer, newBoard);
+      }, 400)
       return false;
     }
 
     this.switchPlayer();
+
+    if (mode === SINGLE_PLAYER && currentPlayer === humanPlayer) {
+      return new Promise((resolve) => {
+        setTimeout(() => resolve(newBoard), 200)
+      })
+    }
   }
 
   endGame = (currentPlayer, newBoard) => {
     const { score } = this.state;
     const isDraw = newBoard.every(cell => !!cell);
 
-    this.setState({ endGame: true });
+    this.setState({ endGame: true, isDraw });
 
     if (!isDraw) {
       this.setState({
@@ -111,6 +119,7 @@ class Board extends Component {
       isDraw,
       score,
       mode,
+      robotPlayer,
     } = this.state;
 
     return (
@@ -139,9 +148,19 @@ class Board extends Component {
           )}
 
           {/* GRID */}
-          {gameStarted && !endGame && (
+          {gameStarted && !endGame && mode === MULTI_PLAYER && (
             <Grid
               currentPlayer={currentPlayer}
+              board={gameBoardCopy}
+              updateBoard={this.updateBoard}
+            />
+          )}
+
+           {/* GRID WITH ROBOT */}
+           {gameStarted && !endGame && mode === SINGLE_PLAYER && (
+            <GridWithRobot
+              currentPlayer={currentPlayer}
+              robotPlayer={robotPlayer}
               board={gameBoardCopy}
               updateBoard={this.updateBoard}
             />
