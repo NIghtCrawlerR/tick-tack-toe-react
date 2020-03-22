@@ -4,6 +4,12 @@ import { get } from 'lodash';
 import {
   WINNING_COMBINATIONS,
   GET_RANDOM,
+  GET_ALLOWED_CELLS,
+  CORNER_CELLS,
+  CENTER_CELL,
+  FIRST_MOVE,
+  GET_MOVE_COUNT,
+  CREATE_BOARD_ROW,
 } from '../../config';
 
 function withRobot(Component) {
@@ -20,35 +26,30 @@ function withRobot(Component) {
 
     bestMove = (board, robotPlayer, humanPlayer) => {
       const bestPositions = WINNING_COMBINATIONS.filter(row => {
-        const [a, b, c] = row;
-        const boardRow = [board[a], board[b], board[c]];
-        const hasEmptyCell = boardRow.filter(cell => !cell).length > 0;
+        const boardRow = CREATE_BOARD_ROW(board, row).filter(cell => cell);
 
-        if (!hasEmptyCell) return false;
-
-        // Check if we have row with two filled cells
-        if ((board[a] && board[a] === board[b])
-          || (board[b] && board[b] === board[c])
-          || (board[c] && board[a] === board[c])
-        ) {
-            return row;
+        // Check if we have row with one empty cell and two matching
+        // If true - return this row as matching best position
+        if (boardRow.length === 2 && boardRow[0] === boardRow[1]) {
+          return row;
         }
 
         return false;
       });
 
+      const getWinPositions = player => {
+        return function () {
+          return bestPositions.filter(row => {
+            const boardRow = CREATE_BOARD_ROW(board, row);
+            return boardRow.includes(player);
+          })
+        }
+      }
       
-      const robotWinPosition = bestPositions.filter(row => {
-        const index = row[0];
-        return board[index] === robotPlayer;
-      })
+      const robotWinPosition = getWinPositions(robotPlayer);
+      const humanWinPosition = getWinPositions(humanPlayer);
 
-      const humanWinPosition = bestPositions.filter(row => {
-        const index = row[0]
-        return board[index] === humanPlayer;
-      })
-
-      const singlePosition = robotWinPosition.length ? robotWinPosition : humanWinPosition;
+      const singlePosition = robotWinPosition().length ? robotWinPosition() : humanWinPosition();
 
       const cell = get(singlePosition, '0', []).filter(cell => !board[cell])
   
@@ -57,18 +58,34 @@ function withRobot(Component) {
 
     setRobotCell = robotCell => this.setState({ robotCell });
 
-    useStrategy = board => {
+    useStrategy = ({ board, isFirst, robotPlayer }) => {
+      const allowedCells = GET_ALLOWED_CELLS(board);
+      const moveCount = GET_MOVE_COUNT(board, robotPlayer);
+      const random = GET_RANDOM(4);
+
+      const isAllowed = cell => allowedCells.includes(cell);
+
+      if (!isFirst && moveCount === FIRST_MOVE) {
+        return isAllowed(CENTER_CELL) ? CENTER_CELL : CORNER_CELLS[random];
+      }
+
+      if (isFirst && moveCount === FIRST_MOVE) {
+        return CORNER_CELLS[random];
+      }
       return null;
     }
 
     robotMove = ({ board, isFirst, robotPlayer, humanPlayer }) => {
-      const allowedCells = board.map((cell, i) => !cell ? i : null).filter(cell => cell !== null);
+      const allowedCells = GET_ALLOWED_CELLS(board);
       const random = GET_RANDOM(allowedCells.length);
 
       const bestMove = this.bestMove(board, robotPlayer, humanPlayer);
+      const strategy = this.useStrategy({ board, isFirst, robotPlayer });
 
       if (bestMove) {
         this.setRobotCell(bestMove)
+      } else if(strategy) {
+        this.setRobotCell(strategy)
       } else {
         this.setRobotCell(allowedCells[random]);
       }

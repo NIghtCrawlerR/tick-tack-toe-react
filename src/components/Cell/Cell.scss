@@ -7,4 +7,8 @@
   color: #00EA94;
   font-size: 90px;
   text-shadow: 0 0 25px #00EA94;
+
+  &__filled {
+    pointer-events: none;
+  }
 }
