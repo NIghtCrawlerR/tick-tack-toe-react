@@ -15,8 +15,8 @@ const StartMenu = ({ setMode, setPlayer, mode }) => (
     {!mode && (
       <>
         <h3 className="StartMenu__title">Choose mode</h3>
-        <Button onClick={() => setMode(SINGLE_PLAYER)}>Single player</Button>
-        <Button onClick={() => setMode(MULTI_PLAYER)}>Multiplayer</Button>
+        <Button onClick={() => setMode(SINGLE_PLAYER)}>Play with robot</Button>
+        <Button onClick={() => setMode(MULTI_PLAYER)}>Play with human</Button>
       </>
     )}
     {mode && mode === SINGLE_PLAYER && (

@@ -10,4 +10,9 @@
   text-shadow: 0 0 25px #00EA94;
   transition: all 0.5s;
   cursor: pointer;
+  transition: all .3s;
+
+  &:hover {
+    box-shadow: 0 0 25px #00EA94;
+  }
 }

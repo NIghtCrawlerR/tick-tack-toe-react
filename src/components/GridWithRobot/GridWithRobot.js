@@ -11,6 +11,14 @@ class GridWithRobot extends Component {
     board: PropTypes.array.isRequired,
   };
 
+  constructor(props) {
+    super();
+
+    this.state = {
+      isFirst: props.robotPlayer === props.currentPlayer,
+    };
+  }
+
   componentDidMount() {
     this.firstMove();
   }
@@ -31,9 +39,10 @@ class GridWithRobot extends Component {
 
   firstMove = () => {
     const { robotPlayer, currentPlayer, robotMove, board } = this.props;
+    const { isFirst } = this.state;
 
     if (robotPlayer === currentPlayer) {
-      robotMove({ board, isFirst: true });
+      robotMove({ board, isFirst });
     }
 
     return null;
@@ -41,9 +50,12 @@ class GridWithRobot extends Component {
 
   makeMove = (i, board) => {
     const { updateBoard, robotMove, robotPlayer, humanPlayer } = this.props;
+    const { isFirst } = this.state;
 
     updateBoard(i, board)
-      .then(board => robotMove({ board, robotPlayer, humanPlayer }))
+      .then(({ board, index }) => {
+        robotMove({ board, robotPlayer, humanPlayer, cellIndex: index, isFirst })
+      })
   }
 
   render() {

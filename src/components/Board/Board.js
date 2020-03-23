@@ -68,17 +68,16 @@ class Board extends Component {
 
       // Return promise for SINGLE PLAYER mode
       if (mode === SINGLE_PLAYER && currentPlayer === humanPlayer) {
-        return new Promise((resolve) => resolve(gameBoardCopy));
+        return new Promise((resolve) => resolve({ board: gameBoardCopy, index }));
       }
 
       return false;
     }
 
     this.switchPlayer();
-
     if (mode === SINGLE_PLAYER && currentPlayer === humanPlayer) {
       return new Promise((resolve) => {
-        setTimeout(() => resolve(newBoard), 200)
+        setTimeout(() => resolve({ board: newBoard, index }), 200)
       })
     }
   }

@@ -5,11 +5,11 @@ import {
   WINNING_COMBINATIONS,
   GET_RANDOM,
   GET_ALLOWED_CELLS,
-  CORNER_CELLS,
   CENTER_CELL,
   FIRST_MOVE,
   GET_MOVE_COUNT,
   CREATE_BOARD_ROW,
+  ALLOWED_CORNERS,
 } from '../../config';
 
 function withRobot(Component) {
@@ -58,34 +58,49 @@ function withRobot(Component) {
 
     setRobotCell = robotCell => this.setState({ robotCell });
 
-    useStrategy = ({ board, isFirst, robotPlayer }) => {
+    useStrategy = ({ board, isFirst, robotPlayer, cellIndex }) => {
+      const allowedCorners = ALLOWED_CORNERS(board);
       const allowedCells = GET_ALLOWED_CELLS(board);
       const moveCount = GET_MOVE_COUNT(board, robotPlayer);
-      const random = GET_RANDOM(4);
+      const randomCorner = GET_RANDOM(allowedCorners.length - 1);
 
       const isAllowed = cell => allowedCells.includes(cell);
 
-      if (!isFirst && moveCount === FIRST_MOVE) {
-        return isAllowed(CENTER_CELL) ? CENTER_CELL : CORNER_CELLS[random];
+      // IS FIRST
+
+      // If robot moves first try and it is FIRST turn =>
+      // fill one of the corner positions
+      if (isFirst && moveCount === FIRST_MOVE) {
+        const nextMove = allowedCorners[randomCorner];
+        return { success: true, nextMove };
       }
 
-      if (isFirst && moveCount === FIRST_MOVE) {
-        return CORNER_CELLS[random];
+      // IS SECOND
+
+      // If robot move second try to fill center position
+      if (!isFirst && moveCount === FIRST_MOVE) {
+        const nextMove = isAllowed(CENTER_CELL) ? CENTER_CELL : allowedCorners[randomCorner];
+        return { success: true, nextMove };
       }
-      return null;
+
+      if (allowedCorners.length) {
+        return { success: true, nextMove: allowedCorners[randomCorner] };
+      }
+
+      return { success: false };
     }
 
-    robotMove = ({ board, isFirst, robotPlayer, humanPlayer }) => {
+    robotMove = ({ board, isFirst, robotPlayer, humanPlayer, cellIndex }) => {
       const allowedCells = GET_ALLOWED_CELLS(board);
       const random = GET_RANDOM(allowedCells.length);
 
       const bestMove = this.bestMove(board, robotPlayer, humanPlayer);
-      const strategy = this.useStrategy({ board, isFirst, robotPlayer });
+      const strategy = this.useStrategy({ board, isFirst, robotPlayer, cellIndex });
 
       if (bestMove) {
-        this.setRobotCell(bestMove)
-      } else if(strategy) {
-        this.setRobotCell(strategy)
+        this.setRobotCell(bestMove);
+      } else if(strategy.success) {
+        this.setRobotCell(strategy.nextMove);
       } else {
         this.setRobotCell(allowedCells[random]);
       }
