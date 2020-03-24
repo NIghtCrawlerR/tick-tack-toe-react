@@ -5,11 +5,11 @@ import {
   WINNING_COMBINATIONS,
   GET_RANDOM,
   GET_ALLOWED_CELLS,
-  CENTER_CELL,
   FIRST_MOVE,
   GET_MOVE_COUNT,
   CREATE_BOARD_ROW,
   ALLOWED_CORNERS,
+  POSSIBLE_HUMANS_POSITIONS,
 } from '../../config';
 
 function withRobot(Component) {
@@ -58,16 +58,26 @@ function withRobot(Component) {
 
     setRobotCell = robotCell => this.setState({ robotCell });
 
+    findNearestRibPosition = cellIndex => {
+      const nearestRibPositions = [];
+      POSSIBLE_HUMANS_POSITIONS.map(row => {
+        // check if human takes corner position
+        if (row.positions[1] === cellIndex) {
+          nearestRibPositions[0] = row.positions[0];
+          nearestRibPositions[1] = row.positions[2];
+        }
+        return row;
+      });
+
+      return nearestRibPositions;
+    }
+
     useStrategy = ({ board, isFirst, robotPlayer, cellIndex }) => {
       const allowedCorners = ALLOWED_CORNERS(board);
-      const allowedCells = GET_ALLOWED_CELLS(board);
       const moveCount = GET_MOVE_COUNT(board, robotPlayer);
       const randomCorner = GET_RANDOM(allowedCorners.length - 1);
 
-      const isAllowed = cell => allowedCells.includes(cell);
-
-      // IS FIRST
-
+      // IF ROBOT MOVES FIRST
       // If robot moves first try and it is FIRST turn =>
       // fill one of the corner positions
       if (isFirst && moveCount === FIRST_MOVE) {
@@ -75,11 +85,15 @@ function withRobot(Component) {
         return { success: true, nextMove };
       }
 
-      // IS SECOND
+      // IF ROBOT MOVES SECOND
 
-      // If robot move second try to fill center position
+      // If robot move second:
+      // If human takes corner position then robot should take nearest rib position
+      // In other cases try to take position at corner
       if (!isFirst && moveCount === FIRST_MOVE) {
-        const nextMove = isAllowed(CENTER_CELL) ? CENTER_CELL : allowedCorners[randomCorner];
+        const nearestRibPositions = this.findNearestRibPosition(cellIndex);
+        const nextMove = nearestRibPositions.length ? nearestRibPositions[0] : allowedCorners[randomCorner];
+
         return { success: true, nextMove };
       }
 

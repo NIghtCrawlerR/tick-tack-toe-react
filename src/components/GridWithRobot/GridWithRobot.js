@@ -54,7 +54,9 @@ class GridWithRobot extends Component {
 
     updateBoard(i, board)
       .then(({ board, index }) => {
-        robotMove({ board, robotPlayer, humanPlayer, cellIndex: index, isFirst })
+        if (typeof index === 'number') {
+          robotMove({ board, robotPlayer, humanPlayer, cellIndex: index, isFirst })
+        }
       })
   }
 

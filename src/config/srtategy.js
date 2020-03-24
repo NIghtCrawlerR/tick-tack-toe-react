@@ -1,5 +1,4 @@
 export const CORNER_CELLS = [0, 2, 6, 8];
-export const CENTER_CELL = 4;
 
 export const FIRST_MOVE = 1;
 export const SECOND_MOVE = 2;
@@ -11,6 +10,7 @@ export const GET_MOVE_COUNT = (board, robotPlayer) => {
 }
 
 // Define best move for possible humans position
+// Middle element in array is corner cell index
 export const POSSIBLE_HUMANS_POSITIONS = [
   {
     positions: [3, 6, 7],
@@ -19,10 +19,10 @@ export const POSSIBLE_HUMANS_POSITIONS = [
     positions: [1, 2, 5],
     bestMove: 6,
   }, {
-    positions: [0, 1, 3],
+    positions: [1, 0, 3],
     bestMove: 8,
   }, {
-    positions: [5, 7, 8],
+    positions: [5, 8, 7],
     bestMove: 0,
   }
 ];

@@ -68,7 +68,7 @@ class Board extends Component {
 
       // Return promise for SINGLE PLAYER mode
       if (mode === SINGLE_PLAYER && currentPlayer === humanPlayer) {
-        return new Promise((resolve) => resolve({ board: gameBoardCopy, index }));
+        return new Promise((resolve) => resolve({ board: gameBoardCopy }));
       }
 
       return false;
